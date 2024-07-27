@@ -1,2 +1,2 @@
-# hack_to_hire_project
+# project
 unique approch to solve the Quara Dataset problem 
