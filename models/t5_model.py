@@ -23,35 +23,33 @@ class T5FineTuner(torch.nn.Module):
             labels=lm_labels,
         )
     
-    def generate(self, input_text, max_length=50, num_beams=5, early_stopping=True, device='cpu'):
-        """
-        Generate text using the T5 model.
+    def generate(self, input_ids, attention_mask,max_length=50,**kwargs):
 
-        Args:
-            input_text (str): The input text to generate from.
-            max_length (int): The maximum length of the generated sequence.
-            num_beams (int): The number of beams for beam search.
-            early_stopping (bool): Whether to stop the beam search when at least `num_beams` sentences are finished per batch.
-            device (str): The device to run the model on ('cpu' or 'cuda').
-
-        Returns:
-            str: The generated text.
-        """
-        self.model.to(device)
-        input_ids = self.tokenizer.encode(input_text, return_tensors='pt').to(device)
+        self.model.to(self.device)
+      
         with torch.no_grad():
             generated_ids = self.model.generate(
                 input_ids=input_ids,
-                max_length=max_length,
-                num_beams=num_beams,
-                early_stopping=early_stopping
+                    attention_mask=attention_mask,
+                    max_length=50,
+                    num_beams=5,
+                    repetition_penalty=2.5,
+                    length_penalty=1.0,
+                    early_stopping=True
+              
             )
-        generated_text = self.tokenizer.decode(generated_ids[0], skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        return generated_text
+        return generated_ids
     
 
 
-
+def infer_single_sentence(model, tokenizer, sentence, max_length=50):
+    inputs = tokenizer.encode(sentence, return_tensors="pt")
+    # Get input_ids and attention_mask
+    input_ids = inputs.input_ids
+    attention_mask = inputs.attention_mask
+    output_ids = model.generate(input_ids,attention_mask, max_length=max_length)
+    output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    return output
 
 def load_model_and_tokenizer(checkpoint_path,hparams ):
     model = T5ForConditionalGeneration.from_pretrained(hparams.model_name_or_path)

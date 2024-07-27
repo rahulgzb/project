@@ -7,6 +7,7 @@ import torch
 import tqdm as t
 from datasets import load_metric
 import json
+import evaluate
 
 
 class CheckpointManager:
@@ -28,6 +29,7 @@ class CheckpointManager:
             self.saved_checkpoints.append(checkpoint_path)
             if len(self.saved_checkpoints) > self.save_top_k:
                 os.remove(self.saved_checkpoints.pop(0))
+       
         score_path = os.path.join(self.dir_path, f'model_scores_{epoch}.json')
         with open(score_path,"w") as f:
             json.dump(scores,f)
@@ -76,17 +78,17 @@ class trainner_helper():
         avg_val_loss = sum(val_losses) / len(val_losses)
         return avg_val_loss
     
-    def evaluate_model(self,dataloader):
-        model= self.model
-        tokenizer= self.tokenizer
+    def evaluate_model(self, dataloader):
+        model = self.model
+        tokenizer = self.tokenizer
         device = self.device
         model.eval()
         model.to(device)
 
         # Load metrics
-        rouge = load_metric("rouge")
-        bleu = load_metric("bleu")
-        f1 = load_metric("f1")
+        rouge = evaluate.load("rouge")
+        bleu = evaluate.load("bleu")
+        f1 = evaluate.load("f1")
 
         all_preds = []
         all_labels = []
@@ -113,19 +115,10 @@ class trainner_helper():
             all_preds.extend(preds)
             all_labels.extend(target)
 
-            # Compute ROUGE for the current batch
-            rouge.add_batch(predictions=preds, references=target)
-            bleu.add_batch(predictions=[[p.split()] for p in preds], references=[[t.split()] for t in target])
-            
-            # Flatten for F1 calculation
-            # F1 requires predictions and references as lists of tokens
-            all_labels_flat = [sent.split() for sent in target]
-            all_preds_flat = [sent.split() for sent in preds]
-
         # Compute ROUGE, BLEU, and F1 scores
-        rouge_result = rouge.compute()
-        bleu_result = bleu.compute()
-        f1_result = f1.compute(predictions=all_preds_flat, references=all_labels_flat)
+        rouge_result = rouge.compute(predictions=all_preds, references=all_labels)
+        bleu_result = bleu.compute(predictions=[p.split() for p in all_preds], references=[[t.split()] for t in all_labels])
+        f1_result = f1.compute(predictions=[p.split() for p in all_preds], references=[[t.split()] for t in all_labels])
 
         print("ROUGE-1: ", rouge_result["rouge1"])
         print("ROUGE-2: ", rouge_result["rouge2"])

@@ -6,7 +6,7 @@ from text_preprocessing import preprocess_text
 
 from torch.utils.data import Dataset
 class QuoraDataset(Dataset):
-    def __init__(self, tokenizer, data_dir, type_path, max_len=256):
+    def __init__(self, tokenizer, data_dir, type_path, max_len=64):
         self.path = os.path.join(data_dir, type_path + '.csv')
         self.question = "question"
 #         self.true_false = "answer"
