@@ -36,8 +36,8 @@ class QuoraDataset(Dataset):
         for idx in range(len(self.data)):
             target,question= self.data.loc[idx, self.target_column], self.data.loc[idx, self.question]
     
-            input_ = "ParaphraseQuestion: %s </s>" % (question)
-            target = "ParaphrasedTarget: %s </s>" %(target)
+            input_ = "Question: %s </s>" % (question)
+            target = "Mimik_human: %s </s>" %(target)
 
             # tokenize inputs
             tokenized_inputs = self.tokenizer.batch_encode_plus(

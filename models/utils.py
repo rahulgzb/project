@@ -88,7 +88,7 @@ class trainner_helper():
         # Load metrics
         rouge = evaluate.load("rouge")
         bleu = evaluate.load("bleu")
-        f1 = evaluate.load("f1")
+     
 
         all_preds = []
         all_labels = []
@@ -117,21 +117,20 @@ class trainner_helper():
 
         # Compute ROUGE, BLEU, and F1 scores
         rouge_result = rouge.compute(predictions=all_preds, references=all_labels)
-        bleu_result = bleu.compute(predictions=[p.split() for p in all_preds], references=[[t.split()] for t in all_labels])
-        f1_result = f1.compute(predictions=[p.split() for p in all_preds], references=[[t.split()] for t in all_labels])
+        bleu_result = bleu.compute(predictions=all_preds, references=[[t] for t in all_labels])
+        
 
-        print("ROUGE-1: ", rouge_result["rouge1"])
+        print("ROUGE-1/f1 score: ", rouge_result["rouge1"])
         print("ROUGE-2: ", rouge_result["rouge2"])
         print("ROUGE-L: ", rouge_result["rougeL"])
         print("BLEU: ", bleu_result["bleu"])
-        print("F1 Score: ", f1_result["f1"])
+        
 
         return {
-            "rouge1": rouge_result["rouge1"],
+            "rouge1/f1 score ": rouge_result["rouge1"],
             "rouge2": rouge_result["rouge2"],
             "rougeL": rouge_result["rougeL"],
             "bleu": bleu_result["bleu"],
-            "f1": f1_result["f1"],
         }
 
 def configure_optimizers(model,hparams,train_dataloader):
