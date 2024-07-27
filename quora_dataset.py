@@ -54,6 +54,9 @@ class QuoraDataset(Dataset):
             self.inputs.append(tokenized_inputs)
             self.targets.append(tokenized_targets)
 
+def get_dataset(tokenizer, type_path, args):
+    return QuoraDataset(tokenizer=tokenizer, data_dir=args.data_dir, type_path=type_path,  max_len=args.max_seq_length)
+
 
 #https://github.com/berknology/text-preprocessing.git
 
