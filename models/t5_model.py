@@ -44,7 +44,7 @@ class T5FineTuner(torch.nn.Module):
 
 def infer_single_sentence(model, tokenizer, sentence, max_length=50):
     inputs = tokenizer.encode(sentence, return_tensors="pt")
-    output_ids = model.generate(inputs, max_length=max_length)
+    output_ids = model.generate(inputs,attention_mask=None, max_length=max_length)
     output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
     return output
 
