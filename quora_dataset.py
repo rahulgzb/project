@@ -8,6 +8,7 @@ from text_preprocessing import ( to_lower, remove_number, remove_itemized_bullet
                                  remove_phone_number, remove_ssn, remove_credit_card_number, remove_name,
                                  check_spelling, stem_word, lemmatize_word)
 
+from torch.utils.data import Dataset
 class QuoraDataset(Dataset):
     def __init__(self, tokenizer, data_dir, type_path, max_len=256):
         self.path = os.path.join(data_dir, type_path + '.csv')
@@ -74,7 +75,7 @@ def train_val_data_prepair():
     df = pd.DataFrame(ds["train"])
 
     print(f"shape of train data before _cleaning {df.shape}")
-    train = df.drop_duplicates()
+    train = df.drop_duplicates().dropna()
     train.columns= ['question', 'target']
     train=train.question.apply(cleaning_data)
     train=train.target.apply(cleaning_data)
