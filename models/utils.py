@@ -6,6 +6,7 @@ import os
 import torch 
 import tqdm as t
 from datasets import load_metric
+import json
 
 
 class CheckpointManager:
@@ -18,7 +19,7 @@ class CheckpointManager:
         self.best_value = None
         self.saved_checkpoints = []
 
-    def save_checkpoint(self, model, epoch, metrics):
+    def save_checkpoint(self, model, epoch, metrics,scores):
         current_value = metrics[self.monitor]
         if self.best_value is None or (self.mode == 'min' and current_value < self.best_value) or (self.mode == 'max' and current_value > self.best_value):
             self.best_value = current_value
@@ -27,6 +28,9 @@ class CheckpointManager:
             self.saved_checkpoints.append(checkpoint_path)
             if len(self.saved_checkpoints) > self.save_top_k:
                 os.remove(self.saved_checkpoints.pop(0))
+        score_path = os.path.join(self.dir_path, f'model_scores_{epoch}.json')
+        with open(score_path,"w") as f:
+            json.dump(scores,f)
 
 class trainner_helper():
     def __init__(self,model,tokenizer) -> None:
@@ -189,11 +193,13 @@ def train_model(hparams,model,tokenizer,train_dataloader,val_dataloader):
         avg_val_loss = trainer.validate(val_dataloader)
         metrics = {"avg_train_loss": avg_train_loss, "avg_val_loss": avg_val_loss}
        
-        checkpoint_manager.save_checkpoint(model, epoch, metrics)
+        
 
         print(f"Epoch {epoch + 1}/{hparams.num_train_epochs}")
         print(f"Train Loss: {avg_train_loss:.4f}")
         print(f"Validation Loss: {avg_val_loss:.4f}")
+        scores=trainer.evaluate_model(val_dataloader)
+        checkpoint_manager.save_checkpoint(model, epoch, metrics,scores)
 
 
 
