@@ -2,11 +2,7 @@ from datasets import load_dataset
 import pandas as pd
 import os
 from text_preprocessing import preprocess_text
-from text_preprocessing import ( to_lower, remove_number, remove_itemized_bullet_and_numbering, remove_url,
-                                 remove_punctuation, remove_special_character,
-                                  normalize_unicode, remove_stopword, remove_email,
-                                 remove_phone_number, remove_ssn, remove_credit_card_number, remove_name,
-                                 check_spelling, stem_word, lemmatize_word)
+
 
 from torch.utils.data import Dataset
 class QuoraDataset(Dataset):
@@ -62,14 +58,10 @@ def get_dataset(tokenizer, type_path, args):
 #https://github.com/berknology/text-preprocessing.git
 
 def cleaning_data(x):
-  preprocess_functions= [to_lower, remove_number, remove_itemized_bullet_and_numbering, remove_url,
-                                 remove_punctuation, remove_special_character,
-                                  normalize_unicode, remove_stopword, remove_email,
-                                 remove_phone_number,  remove_credit_card_number, remove_name,
-                                  stem_word, lemmatize_word]
+  
   x=str(x)
   try:
-    text= preprocess_text(x,preprocess_functions)
+    text= preprocess_text(x)
     return text
   except:
     return x.lower()

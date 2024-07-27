@@ -1,8 +1,10 @@
 import numpy as np
 import torch
 import random
-from quora_dataset import get_dataset
+from .quora_dataset import get_dataset
 import argparse
+
+from torch.utils.data import Dataset,DataLoader
 
 def set_seed(seed):
     random.seed(seed)
@@ -34,7 +36,13 @@ args_dict = dict(
     max_grad_norm=1.0, # if you enable 16-bit training then set this to a sensible value, 0.5 is a good default
     seed=42,
 )
+def data_loading(tokenizer,type_path,args):
+    dataset_values = get_dataset(tokenizer=tokenizer, type_path=type_path, args=args)
+    return DataLoader(dataset_values, batch_size=args.train_batch_size, drop_last=True, shuffle=True, num_workers=4, pin_memory=True)
+
+
 def main():
     args_dict.update({'data_dir': '/kaggle/working', 'output_dir': '/kaggle/working/output/result', 'num_train_epochs':1,'max_seq_length':50})
     args = argparse.Namespace(**args_dict)
+
     print(args_dict)
