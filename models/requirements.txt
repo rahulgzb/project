@@ -1,1 +1,5 @@
+nltk
+pyspellchecker
+contractions
+names-dataset==2.1
 
