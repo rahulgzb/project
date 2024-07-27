@@ -61,3 +61,4 @@ def save_plot(args):
     plt.grid(True)
     plt.savefig('metrics_plot.jpg', format='jpg')
     plt.show()
+    plt.close()
