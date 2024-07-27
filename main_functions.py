@@ -20,7 +20,7 @@ args_dict = dict(
     output_dir="", # path to save the checkpoints
     model_name_or_path='ramsrigouthamg/t5_squad_v1',
     tokenizer_name_or_path='t5-base',
-    max_seq_length=512,
+    max_seq_length=128,
     learning_rate=3e-4,
     weight_decay=0.0,
     adam_epsilon=1e-8,
@@ -35,6 +35,8 @@ args_dict = dict(
     opt_level='O1', # you can find out more on optimisation levels here https://nvidia.github.io/apex/amp.html#opt-levels-and-properties
     max_grad_norm=1.0, # if you enable 16-bit training then set this to a sensible value, 0.5 is a good default
     seed=42,
+    eval_method="rougeL",## value of evaluation option["rougeL","avg_val_loss","bleu"]
+    eval_mode="max" ## options "max","min"
 )
 def data_loading(tokenizer,type_path,args):
     dataset_values = get_dataset(tokenizer=tokenizer, type_path=type_path, args=args)

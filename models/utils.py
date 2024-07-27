@@ -68,15 +68,15 @@ class trainner_helper():
     #     self.lr_scheduler.step()
     #     return loss.item()
 
-    def validate(self, dataloader):
-        self.model.eval()
-        val_losses = []
-        with torch.no_grad():
-            for batch in dataloader:
-                loss = self._step(batch)
-                val_losses.append(loss.item())
-        avg_val_loss = sum(val_losses) / len(val_losses)
-        return avg_val_loss
+    # def validate(self, dataloader):
+    #     self.model.eval()
+    #     val_losses = []
+    #     with torch.no_grad():
+    #         for batch in dataloader:
+    #             loss = self._step(batch)
+    #             val_losses.append(loss.item())
+    #     avg_val_loss = sum(val_losses) / len(val_losses)
+    #     return avg_val_loss
     
     def evaluate_model(self, dataloader):
         model = self.model
@@ -92,13 +92,16 @@ class trainner_helper():
 
         all_preds = []
         all_labels = []
-
+        val_losses = []
         for batch in dataloader:
             input_ids = batch["source_ids"].to(device)
             attention_mask = batch["source_mask"].to(device)
             labels = batch["target_ids"].to(device)
 
             with torch.no_grad():
+                loss= self._step(batch)
+                val_losses.append(loss.item())
+
                 generated_ids = model.generate(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
@@ -114,7 +117,8 @@ class trainner_helper():
 
             all_preds.extend(preds)
             all_labels.extend(target)
-
+        ## compute the cross entropy loss 
+        avg_val_loss = sum(val_losses) / len(val_losses)
         # Compute ROUGE, BLEU, and F1 scores
         rouge_result = rouge.compute(predictions=all_preds, references=all_labels)
         bleu_result = bleu.compute(predictions=all_preds, references=[[t] for t in all_labels])
@@ -131,6 +135,7 @@ class trainner_helper():
             "rouge2": rouge_result["rouge2"],
             "rougeL": rouge_result["rougeL"],
             "bleu": bleu_result["bleu"],
+            "avg_val_loss": avg_val_loss
         }
 
 def configure_optimizers(model,hparams,train_dataloader):
@@ -160,7 +165,7 @@ def configure_optimizers(model,hparams,train_dataloader):
 
 def train_model(hparams,model,tokenizer,train_dataloader,val_dataloader):
     
-    checkpoint_manager = CheckpointManager(hparams.output_dir, monitor="avg_val_loss", mode="min", save_top_k=1)
+    checkpoint_manager = CheckpointManager(hparams.output_dir, monitor=hparams.eval_method, mode="max", save_top_k=1)
     optimizer, lr_scheduler = configure_optimizers(model,hparams,train_dataloader)
     scaler = torch.cuda.amp.GradScaler() if hparams.fp_16 else None
     trainer=trainner_helper(model,tokenizer)
@@ -181,17 +186,13 @@ def train_model(hparams,model,tokenizer,train_dataloader,val_dataloader):
             lr_scheduler.step()
             train_losses.append(loss.item())
         avg_train_loss = sum(train_losses) / len(train_losses)
-
-        avg_val_loss = trainer.validate(val_dataloader)
-        metrics = {"avg_train_loss": avg_train_loss, "avg_val_loss": avg_val_loss}
-       
-        
-
+        scores=trainer.evaluate_model(val_dataloader)
+        metrics = {"avg_train_loss": avg_train_loss, "avg_val_loss": scores["avg_val_loss"]}
         print(f"Epoch {epoch + 1}/{hparams.num_train_epochs}")
         print(f"Train Loss: {avg_train_loss:.4f}")
-        print(f"Validation Loss: {avg_val_loss:.4f}")
-        scores=trainer.evaluate_model(val_dataloader)
-        checkpoint_manager.save_checkpoint(model, epoch, metrics,scores)
+        print(f"Validation Loss: {scores["avg_val_loss"]:.4f}")
+        scores.update(metrics)
+        checkpoint_manager.save_checkpoint(model, epoch,scores)
 
 
 
