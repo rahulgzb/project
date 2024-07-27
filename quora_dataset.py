@@ -81,8 +81,8 @@ def train_val_data_prepair():
     print(f"shape of train data before _cleaning {df.shape}")
     train = df.drop_duplicates().dropna()
     train.columns= ['question', 'target']
-    train=train.question.apply(cleaning_data)
-    train=train.target.apply(cleaning_data)
+    train.question=train.question.apply(cleaning_data)
+    train.target=train.target.apply(cleaning_data)
     train=train.dropna()
 
     print(f"shape of train data after _cleaning {train.shape}")
