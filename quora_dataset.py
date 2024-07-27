@@ -62,13 +62,17 @@ def get_dataset(tokenizer, type_path, args):
 #https://github.com/berknology/text-preprocessing.git
 
 def cleaning_data(x):
-    preprocess_functions= [to_lower, remove_number, remove_itemized_bullet_and_numbering, remove_url,
+  preprocess_functions= [to_lower, remove_number, remove_itemized_bullet_and_numbering, remove_url,
                                  remove_punctuation, remove_special_character,
                                   normalize_unicode, remove_stopword, remove_email,
-                                 remove_phone_number, remove_ssn, remove_credit_card_number, remove_name,
-                                 check_spelling, stem_word, lemmatize_word]
-    return preprocess_text(str(x), preprocess_functions)
-    
+                                 remove_phone_number,  remove_credit_card_number, remove_name,
+                                  stem_word, lemmatize_word]
+  x=str(x)
+  try:
+    text= preprocess_text(x,preprocess_functions)
+    return text
+  except:
+    return x.lower()
 
 def train_val_data_prepair():
     ds = load_dataset("toughdata/quora-question-answer-dataset")
