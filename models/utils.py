@@ -4,6 +4,7 @@ from transformers import (
 )
 import os 
 import torch 
+import tqdm as t
 
 class CheckpointManager:
     def __init__(self, dir_path, monitor='val_loss', mode='min', save_top_k=1):
@@ -26,8 +27,12 @@ class CheckpointManager:
                 os.remove(self.saved_checkpoints.pop(0))
 
 class trainner_helper():
-    def __init__(self) -> None:
+    def __init__(self,model,tokenizer) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model=model
+        self.tokenizer=tokenizer
+     
+
     def _step(self, batch):
         # Move batch data to device
         input_ids = batch["source_ids"].to(self.device)
@@ -38,7 +43,7 @@ class trainner_helper():
         lm_labels = target_ids.clone()
         lm_labels[lm_labels == self.tokenizer.pad_token_id] = -100
 
-        outputs = self(
+        outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
             lm_labels=lm_labels,
@@ -47,23 +52,22 @@ class trainner_helper():
         loss = outputs.loss
         return loss
 
-    def training_step(self, batch):
-        self.optimizer.zero_grad()
-        loss = self._step(batch)
-        loss.backward()
-        self.optimizer.step()
-        self.lr_scheduler.step()
-        return loss.item()
+    # def training_step(self, batch):
+    #     self.optimizer.zero_grad()
+    #     loss = self._step(batch)
+    #     loss.backward()
+    #     self.optimizer.step()
+    #     self.lr_scheduler.step()
+    #     return loss.item()
 
     def validate(self, dataloader):
-        self.eval()
+        self.model.eval()
         val_losses = []
         with torch.no_grad():
             for batch in dataloader:
                 loss = self._step(batch)
                 val_losses.append(loss.item())
         avg_val_loss = sum(val_losses) / len(val_losses)
-        self.train()
         return avg_val_loss
 
 def configure_optimizers(model,hparams,train_dataloader):
@@ -91,16 +95,16 @@ def configure_optimizers(model,hparams,train_dataloader):
     return optimizer, scheduler
 
 
-def train_model(hparams,model,train_dataloader,val_dataloader):
+def train_model(hparams,model,tokenizer,train_dataloader,val_dataloader):
     
     checkpoint_manager = CheckpointManager(hparams.output_dir, monitor="avg_val_loss", mode="min", save_top_k=1)
     optimizer, lr_scheduler = configure_optimizers(model,hparams,train_dataloader)
     scaler = torch.cuda.amp.GradScaler() if hparams.fp_16 else None
-    trainer=trainner_helper()
+    trainer=trainner_helper(model,tokenizer)
     for epoch in range(hparams.num_train_epochs):
         model.train()
         train_losses = []
-        for batch in train_dataloader:
+        for batch in t.tqdm(train_dataloader):
             optimizer.zero_grad()
             with torch.cuda.amp.autocast(enabled=hparams.fp_16):
                 loss = trainer._step(batch)
@@ -124,8 +128,3 @@ def train_model(hparams,model,train_dataloader,val_dataloader):
         print(f"Train Loss: {avg_train_loss:.4f}")
         print(f"Validation Loss: {avg_val_loss:.4f}")
 
-    # # Simulate test end logging (if needed)
-    # test_dataloader = model.val_dataloader()  # Assuming you have a separate test dataset
-    # avg_test_loss = model.validate(test_dataloader)
-    # test_metrics = {"avg_test_loss": avg_test_loss}
-   
