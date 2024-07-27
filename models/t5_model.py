@@ -23,7 +23,7 @@ class T5FineTuner(torch.nn.Module):
             labels=lm_labels,
         )
     
-    def generate(self, input_ids, attention_mask,max_length=50,**kwargs):
+    def generate(self, input_ids, attention_mask=None,max_length=50,**kwargs):
 
         self.model.to(self.device)
       
@@ -44,10 +44,7 @@ class T5FineTuner(torch.nn.Module):
 
 def infer_single_sentence(model, tokenizer, sentence, max_length=50):
     inputs = tokenizer.encode(sentence, return_tensors="pt")
-    # Get input_ids and attention_mask
-    input_ids = inputs.input_ids
-    attention_mask = inputs.attention_mask
-    output_ids = model.generate(input_ids,attention_mask, max_length=max_length)
+    output_ids = model.generate(inputs, max_length=max_length)
     output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
     return output
 
