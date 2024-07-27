@@ -5,6 +5,8 @@ from transformers import (
 import os 
 import torch 
 import tqdm as t
+from datasets import load_metric
+
 
 class CheckpointManager:
     def __init__(self, dir_path, monitor='val_loss', mode='min', save_top_k=1):
@@ -69,6 +71,71 @@ class trainner_helper():
                 val_losses.append(loss.item())
         avg_val_loss = sum(val_losses) / len(val_losses)
         return avg_val_loss
+    
+    def evaluate_model(self,dataloader):
+        model= self.model
+        tokenizer= self.tokenizer
+        device = self.device
+        model.eval()
+        model.to(device)
+
+        # Load metrics
+        rouge = load_metric("rouge")
+        bleu = load_metric("bleu")
+        f1 = load_metric("f1")
+
+        all_preds = []
+        all_labels = []
+
+        for batch in dataloader:
+            input_ids = batch["source_ids"].to(device)
+            attention_mask = batch["source_mask"].to(device)
+            labels = batch["target_ids"].to(device)
+
+            with torch.no_grad():
+                generated_ids = model.generate(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    max_length=50,
+                    num_beams=5,
+                    repetition_penalty=2.5,
+                    length_penalty=1.0,
+                    early_stopping=True
+                )
+
+            preds = [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=True) for g in generated_ids]
+            target = [tokenizer.decode(t, skip_special_tokens=True, clean_up_tokenization_spaces=True) for t in labels]
+
+            all_preds.extend(preds)
+            all_labels.extend(target)
+
+            # Compute ROUGE for the current batch
+            rouge.add_batch(predictions=preds, references=target)
+            bleu.add_batch(predictions=[[p.split()] for p in preds], references=[[t.split()] for t in target])
+            
+            # Flatten for F1 calculation
+            # F1 requires predictions and references as lists of tokens
+            all_labels_flat = [sent.split() for sent in target]
+            all_preds_flat = [sent.split() for sent in preds]
+
+        # Compute ROUGE, BLEU, and F1 scores
+        rouge_result = rouge.compute()
+        bleu_result = bleu.compute()
+        f1_result = f1.compute(predictions=all_preds_flat, references=all_labels_flat)
+
+        print("ROUGE-1: ", rouge_result["rouge1"])
+        print("ROUGE-2: ", rouge_result["rouge2"])
+        print("ROUGE-L: ", rouge_result["rougeL"])
+        print("BLEU: ", bleu_result["bleu"])
+        print("F1 Score: ", f1_result["f1"])
+
+        return {
+            "rouge1": rouge_result["rouge1"],
+            "rouge2": rouge_result["rouge2"],
+            "rougeL": rouge_result["rougeL"],
+            "bleu": bleu_result["bleu"],
+            "f1": f1_result["f1"],
+        }
 
 def configure_optimizers(model,hparams,train_dataloader):
     no_decay = ["bias", "LayerNorm.weight"]
@@ -127,4 +194,6 @@ def train_model(hparams,model,tokenizer,train_dataloader,val_dataloader):
         print(f"Epoch {epoch + 1}/{hparams.num_train_epochs}")
         print(f"Train Loss: {avg_train_loss:.4f}")
         print(f"Validation Loss: {avg_val_loss:.4f}")
+
+
 

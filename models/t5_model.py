@@ -23,3 +23,17 @@ class T5FineTuner(torch.nn.Module):
             labels=lm_labels,
         )
     
+
+
+def infer_single_sentence(model, tokenizer, sentence, max_length=50):
+    input_ids = tokenizer.encode(sentence, return_tensors="pt")
+    output_ids = model.generate(input_ids, max_length=max_length)
+    output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    return output
+
+def load_model_and_tokenizer(checkpoint_path,hparams ):
+    model = T5ForConditionalGeneration.from_pretrained(hparams.model_name_or_path)
+    model.load_state_dict(torch.load(checkpoint_path))
+    tokenizer = T5Tokenizer.from_pretrained(hparams.model_name_or_path)
+    return model, tokenizer
+
