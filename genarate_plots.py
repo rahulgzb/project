@@ -30,9 +30,10 @@ def aggregate_metrics(metrics_list):
     
     return aggregated_metrics
 
-def save_plot(directory):
+def save_plot(args):
     # Directory containing JSON files
     # Read and aggregate JSON files
+    directory= args.output_dir
     metrics_list = read_json_files(directory)
     aggregated_metrics = aggregate_metrics(metrics_list)
 
