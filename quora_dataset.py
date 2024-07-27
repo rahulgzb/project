@@ -9,9 +9,7 @@ class QuoraDataset(Dataset):
     def __init__(self, tokenizer, data_dir, type_path, max_len=64):
         self.path = os.path.join(data_dir, type_path + '.csv')
         self.question = "question"
-#         self.true_false = "answer"
         self.target_column = "target"
-#         self.incorrect_max = "mix_in_correct"
         self.data = pd.read_csv(self.path)
         self.max_len = max_len
         self.tokenizer = tokenizer
