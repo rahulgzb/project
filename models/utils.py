@@ -186,11 +186,12 @@ def train_model(hparams,model,tokenizer,train_dataloader,val_dataloader):
             lr_scheduler.step()
             train_losses.append(loss.item())
         avg_train_loss = sum(train_losses) / len(train_losses)
+        avg_val_loss=scores["avg_val_loss"]
         scores=trainer.evaluate_model(val_dataloader)
         metrics = {"avg_train_loss": avg_train_loss, "avg_val_loss": scores["avg_val_loss"]}
         print(f"Epoch {epoch + 1}/{hparams.num_train_epochs}")
         print(f"Train Loss: {avg_train_loss:.4f}")
-        print(f"Validation Loss: {scores["avg_val_loss"]:.4f}")
+        print(f"Validation Loss: { avg_val_loss :.4f}")
         scores.update(metrics)
         checkpoint_manager.save_checkpoint(model, epoch,scores)
 
