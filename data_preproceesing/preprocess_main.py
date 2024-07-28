@@ -27,6 +27,9 @@ def clean_text(text):
     bullet_points = ['•', '●', '▪', '-', '*']
     for bullet in bullet_points:
         text = text.replace(bullet, ' ')
+    ## relinked text 
+    linked_text_pattern = r'\[linked_text:.*?\]'
+    text = re.sub(linked_text_pattern, '', text, flags=re.MULTILINE)
 
     # Remove extra spaces
     text = re.sub(r'\s+', ' ', text).strip()
