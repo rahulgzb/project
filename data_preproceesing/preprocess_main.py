@@ -14,7 +14,8 @@ not using this since it already T5 already trained on large corpus of words whic
 
 def clean_text(text):
     # Remove URLs
-    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
+    url_pattern = r'https?://\S+|www\.\S+'
+    text = re.sub(url_pattern, '', text, flags=re.MULTILINE)
 
     # Remove emojis
     text =demoji.replace(text, '')
@@ -50,7 +51,6 @@ def _create_splits(split_size,data):
  
 def cleaner_function(text):
     if text:
-        text= str(text)
         try:
            text=clean_text(text)
         except Exception as e:
@@ -72,6 +72,7 @@ def data_cleaner(split_size=0.7):
     ## 
     print("initiating train val text split ...")
     _create_splits(split_size,df)
+    print(f"shape of train data before _cleaning {df.shape}")
 
 
    
@@ -82,21 +83,6 @@ def download_data():
     print("data_downloaded..")
     df.to_csv("../data/full_data.csv",index=False)
 
-    # print(f"shape of train data before _cleaning {df.shape}")
-    # train = df.drop_duplicates().dropna()
-    # train.columns= ['question', 'target']
-    # train.question=train.question.apply(cleaning_data)
-    # train.target=train.target.apply(cleaning_data)
-    # train=train.dropna()
-
-    # print(f"shape of train data after _cleaning {train.shape}")
-    # train1= train.sample(frac=1).reset_index(drop=True)
-    # len_train=int(len(train1)*0.7)
-
-    # train_df= train1[:len_train]
-    # val_df= train1[len_train:]
-
-    #return train_df,val_df
 
 if __name__=="__main__":
     data_cleaner()
