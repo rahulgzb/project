@@ -42,7 +42,7 @@ args_dict = dict(
 )
 def data_loading(tokenizer,type_path,args):
     dataset_values = get_dataset(tokenizer=tokenizer, type_path=type_path, args=args)
-    return DataLoader(dataset_values, batch_size=args.train_batch_size, drop_last=False, shuffle=True, num_workers=args.n_gpu, pin_memory=True)
+    return DataLoader(dataset_values, batch_size=args.train_batch_size, drop_last=True, shuffle=True, num_workers=args.n_gpu, pin_memory=True)
 
 
 def main():
