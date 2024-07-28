@@ -1,7 +1,7 @@
 from datasets import load_dataset
 import pandas as pd
 import os
-from text_preprocessing import preprocess_text
+
 
 
 from torch.utils.data import Dataset
@@ -53,33 +53,3 @@ def get_dataset(tokenizer, type_path, args):
     return QuoraDataset(tokenizer=tokenizer, data_dir=args.data_dir, type_path=type_path,  max_len=args.max_seq_length)
 
 
-#https://github.com/berknology/text-preprocessing.git
-
-def cleaning_data(x):
-  
-  x=str(x)
-  try:
-    text= preprocess_text(x)
-    return text
-  except:
-    return x.lower()
-
-def train_val_data_prepair():
-    ds = load_dataset("toughdata/quora-question-answer-dataset")
-    df = pd.DataFrame(ds["train"])
-
-    print(f"shape of train data before _cleaning {df.shape}")
-    train = df.drop_duplicates().dropna()
-    train.columns= ['question', 'target']
-    train.question=train.question.apply(cleaning_data)
-    train.target=train.target.apply(cleaning_data)
-    train=train.dropna()
-
-    print(f"shape of train data after _cleaning {train.shape}")
-    train1= train.sample(frac=1).reset_index(drop=True)
-    len_train=int(len(train1)*0.7)
-
-    train_df= train1[:len_train]
-    val_df= train1[len_train:]
-
-    return train_df,val_df
