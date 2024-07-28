@@ -40,6 +40,7 @@ class T5FineTuner(torch.nn.Module):
             )
         return generated_ids
     
+    
 
 
 def infer_single_sentence(model, tokenizer, sentence, max_length=50):
