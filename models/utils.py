@@ -131,8 +131,8 @@ class trainner_helper():
                 all_preds.extend(generated_ids.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
-        all_preds_padded = self.pad_sequences(all_preds)
-        all_labels_padded = self.pad_sequences(all_labels)
+        all_preds_padded = self.pad_sequences(all_preds,model.tokenizer.pad_token_id)
+        all_labels_padded = self.pad_sequences(all_labels,model.tokenizer.pad_token_id)
         # Convert lists to numpy arrays
         all_preds = np.array(all_preds_padded)
         all_labels = np.array(all_labels_padded)
