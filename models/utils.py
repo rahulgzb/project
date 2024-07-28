@@ -150,7 +150,7 @@ class trainner_helper():
         print("gen_len:",  metrics["gen_len"])
 
         return {
-            "rouge1/f1 score ": metrics["rouge1"],
+            "rouge1": metrics["rouge1"],
             "rouge2": metrics["rouge2"],
             "rougeL": metrics["rougeL"],
             "bleu": metrics["bleu"],

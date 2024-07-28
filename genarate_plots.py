@@ -14,7 +14,7 @@ def read_json_files(directory):
 
 def aggregate_metrics(metrics_list):
     aggregated_metrics = {
-        "rouge1/f1 score": [],
+        "rouge1": [],
         "rouge2": [],
         "rougeL": [],
         "bleu": [],
@@ -23,7 +23,7 @@ def aggregate_metrics(metrics_list):
     }
     
     for metrics in metrics_list:
-        aggregated_metrics["rouge1/f1 score"].append(metrics["rouge1/f1 score "])
+        aggregated_metrics["rouge1"].append(metrics["rouge1"])
         aggregated_metrics["rouge2"].append(metrics["rouge2"])
         aggregated_metrics["rougeL"].append(metrics["rougeL"])
         aggregated_metrics["bleu"].append(metrics["bleu"])
@@ -62,7 +62,7 @@ def save_plot(args):
     # Create a second y-axis to plot ROUGE and BLEU scores
     ax2 = ax1
     ax2.set_ylabel('Scores')
-    ax2.plot(aggregated_metrics["rouge1/f1 score"], label='ROUGE-1/F1 Score', color='tab:orange')
+    ax2.plot(aggregated_metrics["rouge1"], label='F1 Score', color='tab:orange')
     ax2.plot(aggregated_metrics["rouge2"], label='ROUGE-2', color='tab:green')
     ax2.plot(aggregated_metrics["rougeL"], label='ROUGE-L', color='tab:red')
     ax2.plot(aggregated_metrics["bleu"], label='BLEU', color='tab:purple')
