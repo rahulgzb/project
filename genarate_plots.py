@@ -60,7 +60,7 @@ def save_plot(args):
 
 
     # Create a second y-axis to plot ROUGE and BLEU scores
-    ax2 = ax1
+    fig, ax2 = plt.subplots(figsize=(10, 6))
     ax2.set_ylabel('Scores')
     ax2.plot(aggregated_metrics["rouge1"], label='F1 Score', color='tab:orange')
     ax2.plot(aggregated_metrics["rouge2"], label='ROUGE-2', color='tab:green')
