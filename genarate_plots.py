@@ -22,7 +22,7 @@ def aggregate_metrics(metrics_list):
     }
     
     for metrics in metrics_list:
-        aggregated_metrics["rouge1/f1 score"].append(metrics["rouge1/f1 score"])
+        aggregated_metrics["rouge1/f1 score"].append(metrics["rouge1/f1 score "])
         aggregated_metrics["rouge2"].append(metrics["rouge2"])
         aggregated_metrics["rougeL"].append(metrics["rougeL"])
         aggregated_metrics["bleu"].append(metrics["bleu"])
