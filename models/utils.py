@@ -8,7 +8,9 @@ import tqdm as t
 from datasets import load_metric
 import json
 import evaluate
-
+import nltk
+import sacrebleu
+import numpy as np
 
 class CheckpointManager:
     def __init__(self, dir_path, monitor='val_loss', mode='min', save_top_k=1):
@@ -59,37 +61,43 @@ class trainner_helper():
         )
         loss = outputs.loss
         return loss
+    
+    def compute_metrics(self,predictions, labels):
+         # Load metrics
+        rouge = evaluate.load("rouge")
+        bleu_metric = sacrebleu.BLEU()
 
-    # def training_step(self, batch):
-    #     self.optimizer.zero_grad()
-    #     loss = self._step(batch)
-    #     loss.backward()
-    #     self.optimizer.step()
-    #     self.lr_scheduler.step()
-    #     return loss.item()
+        tokenizer = self.tokenizer
+        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+        
+        labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
+        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-    # def validate(self, dataloader):
-    #     self.model.eval()
-    #     val_losses = []
-    #     with torch.no_grad():
-    #         for batch in dataloader:
-    #             loss = self._step(batch)
-    #             val_losses.append(loss.item())
-    #     avg_val_loss = sum(val_losses) / len(val_losses)
-    #     return avg_val_loss
+        decoded_preds = ["\n".join(nltk.sent_tokenize(pred.strip())) for pred in decoded_preds]
+        decoded_labels = ["\n".join(nltk.sent_tokenize(label.strip())) for label in decoded_labels]
+        
+        rouge_result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
+        rouge_result = {key: value.mid.fmeasure * 100 for key, value in rouge_result.items()}  # Extracting some results
+
+        # Computing BLEU score
+        bleu_result = bleu_metric.corpus_score(decoded_preds, [decoded_labels])
+        bleu_score = bleu_result.score
+
+        # Add mean-generated length
+        prediction_lens = [np.count_nonzero(pred != tokenizer.pad_token_id) for pred in predictions]
+        rouge_result["gen_len"] = np.mean(prediction_lens)
+
+        # Combine ROUGE and BLEU results
+        metrics = {**rouge_result, "bleu": bleu_score}
+
+        return {k: round(v, 4) for k, v in metrics.items()}
+
     
     def evaluate_model(self, dataloader):
         model = self.model
-        tokenizer = self.tokenizer
         device = self.device
         model.eval()
         model.to(device)
-
-        # Load metrics
-        rouge = evaluate.load("rouge")
-        bleu = evaluate.load("bleu")
-     
-
         all_preds = []
         all_labels = []
         val_losses = []
@@ -112,29 +120,31 @@ class trainner_helper():
                     early_stopping=True
                 )
 
-            preds = [tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=True) for g in generated_ids]
-            target = [tokenizer.decode(t, skip_special_tokens=True, clean_up_tokenization_spaces=True) for t in labels]
+                 # Collect predictions and labels
+                all_preds.extend(generated_ids.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
 
-            all_preds.extend(preds)
-            all_labels.extend(target)
+        # Convert lists to numpy arrays
+        all_preds = np.array(all_preds)
+        all_labels = np.array(all_labels)
+
+        # Compute and print metrics rouge_score and blue score 
+        metrics = self.compute_metrics(all_preds, all_labels)
         ## compute the cross entropy loss 
         avg_val_loss = sum(val_losses) / len(val_losses)
-        # Compute ROUGE, BLEU, and F1 scores
-        rouge_result = rouge.compute(predictions=all_preds, references=all_labels)
-        bleu_result = bleu.compute(predictions=all_preds, references=[[t] for t in all_labels])
-        
+     
 
-        print("ROUGE-1/f1 score: ", rouge_result["rouge1"])
-        print("ROUGE-2: ", rouge_result["rouge2"])
-        print("ROUGE-L: ", rouge_result["rougeL"])
-        print("BLEU: ", bleu_result["bleu"])
+        print("ROUGE-1/f1 score: ", metrics["rouge1"])
+        print("ROUGE-2: ", metrics["rouge2"])
+        print("ROUGE-L: ", metrics["rougeL"])
+        print("BLEU: ", metrics["bleu"])
         
 
         return {
-            "rouge1/f1 score ": rouge_result["rouge1"],
-            "rouge2": rouge_result["rouge2"],
-            "rougeL": rouge_result["rougeL"],
-            "bleu": bleu_result["bleu"],
+            "rouge1/f1 score ": metrics["rouge1"],
+            "rouge2": metrics["rouge2"],
+            "rougeL": metrics["rougeL"],
+            "bleu": metrics["bleu"],
             "avg_val_loss": avg_val_loss
         }
 
