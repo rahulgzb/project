@@ -66,7 +66,7 @@ def cleaner_function(text):
             print(f"cannot be cleaned {text} due to {e}")
     return text
 
-def data_cleaner(split_size=0.7):
+def data_cleaner(split_size=0.8):
     df=pd.read_csv("../data/full_data.csv")
     ## split size % split between val and train 
     print(f"shape of full data before _cleaning {df.shape}")
