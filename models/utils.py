@@ -77,7 +77,7 @@ class trainner_helper():
         decoded_labels = ["\n".join(nltk.sent_tokenize(label.strip())) for label in decoded_labels]
         
         rouge_result = rouge.compute(predictions=decoded_preds, references=decoded_labels, use_stemmer=True)
-        rouge_result = {key: value.mid.fmeasure * 100 for key, value in rouge_result.items()}  # Extracting some results
+        
 
         # Computing BLEU score
         bleu_result = bleu_metric.corpus_score(decoded_preds, [decoded_labels])
@@ -92,6 +92,13 @@ class trainner_helper():
 
         return {k: round(v, 4) for k, v in metrics.items()}
 
+    # Padding function
+    def pad_sequences(self,sequences, pad_token_id):
+        max_length = max(seq.shape[0] for seq in sequences)
+        padded_sequences = np.full((len(sequences), max_length), pad_token_id)
+        for i, seq in enumerate(sequences):
+            padded_sequences[i, :seq.shape[0]] = seq
+        return padded_sequences
     
     def evaluate_model(self, dataloader):
         model = self.model
@@ -124,9 +131,11 @@ class trainner_helper():
                 all_preds.extend(generated_ids.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
+        all_preds_padded = self.pad_sequences(all_preds)
+        all_labels_padded = self.pad_sequences(all_labels)
         # Convert lists to numpy arrays
-        all_preds = np.array(all_preds)
-        all_labels = np.array(all_labels)
+        all_preds = np.array(all_preds_padded)
+        all_labels = np.array(all_labels_padded)
 
         # Compute and print metrics rouge_score and blue score 
         metrics = self.compute_metrics(all_preds, all_labels)
