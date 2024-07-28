@@ -20,7 +20,7 @@ class CheckpointManager:
         self.best_value = None
         self.saved_checkpoints = []
 
-    def save_checkpoint(self, model, epoch, metrics,scores):
+    def save_checkpoint(self, model, epoch, metrics):
         current_value = metrics[self.monitor]
         if self.best_value is None or (self.mode == 'min' and current_value < self.best_value) or (self.mode == 'max' and current_value > self.best_value):
             self.best_value = current_value
@@ -32,7 +32,7 @@ class CheckpointManager:
        
         score_path = os.path.join(self.dir_path, f'model_scores_{epoch}.json')
         with open(score_path,"w") as f:
-            json.dump(scores,f)
+            json.dump(metrics,f)
 
 class trainner_helper():
     def __init__(self,model,tokenizer) -> None:
