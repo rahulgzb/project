@@ -13,6 +13,11 @@ not using this since it already T5 already trained on large corpus of words whic
 
 
 def clean_text(text):
+
+    # Remove any thing under square braket 
+    square_brackets=r'\[.*?\]'
+    text=re.sub(square_brackets, '', text)
+
     # Remove URLs
     url_pattern = r'https?://\S+|www\.\S+'
     text = re.sub(url_pattern, '', text, flags=re.MULTILINE)
@@ -26,7 +31,8 @@ def clean_text(text):
     # Remove bullet points
     bullet_points = ['•', '●', '▪', '-', '*']
     for bullet in bullet_points:
-        text = text.replace(bullet, ' ')
+        text = text.replace(bullet, ', ')
+
     ## relinked text 
     linked_text_pattern = r'\[linked_text:.*?\]'
     text = re.sub(linked_text_pattern, '', text, flags=re.MULTILINE)
