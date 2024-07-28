@@ -2,3 +2,4 @@ datasets
 demoji
 evaluate
 rouge_score
+sacrebleu

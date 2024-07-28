@@ -138,14 +138,15 @@ class trainner_helper():
         print("ROUGE-2: ", metrics["rouge2"])
         print("ROUGE-L: ", metrics["rougeL"])
         print("BLEU: ", metrics["bleu"])
-        
+        print("gen_len:",  metrics["gen_len"])
 
         return {
             "rouge1/f1 score ": metrics["rouge1"],
             "rouge2": metrics["rouge2"],
             "rougeL": metrics["rougeL"],
             "bleu": metrics["bleu"],
-            "avg_val_loss": avg_val_loss
+            "avg_val_loss": avg_val_loss,
+            "gen_len": metrics["gen_len"]
         }
 
 def configure_optimizers(model,hparams,train_dataloader):
