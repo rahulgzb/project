@@ -138,14 +138,5 @@ If you encounter issues, ensure that:
 - The paths in `args_dict` are correctly set to your data and output directories.
 - You have sufficient GPU resources if `n_gpu` is set to more than 1.
 
-## Contributing
-
-Contributions are welcome! Please submit a pull request or open an issue to discuss changes.
-
-## License
-
-This project is licensed under the MIT License.
-
----
 
 This improved `README.md` file includes more detailed explanations, an installation section, a complete usage example, and a troubleshooting section. This should make it easier for users to understand and use your project.
