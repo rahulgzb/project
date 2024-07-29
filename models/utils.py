@@ -161,18 +161,18 @@ class trainner_helper():
 def configure_optimizers(model,hparams,train_dataloader):
     no_decay = ["bias", "LayerNorm.weight"]
 
-    # optimizer_grouped_parameters = [
-    #     {
-    #         "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-    #         "weight_decay": hparams.weight_decay,
-    #     },
-    #     {
-    #         "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
-    #         "weight_decay": 0.0,
-    #     },
-    # ]
-    #optimizer = AdamW(optimizer_grouped_parameters, lr=hparams.learning_rate, eps=hparams.adam_epsilon)
-    optimizer = AdamW(model.parameters(), lr=hparams.learning_rate, eps=hparams.adam_epsilon)
+    optimizer_grouped_parameters = [
+        {
+            "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
+            "weight_decay": hparams.weight_decay,
+        },
+        {
+            "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
+            "weight_decay": 0.0,
+        },
+    ]
+    optimizer = AdamW(optimizer_grouped_parameters, lr=hparams.learning_rate, eps=hparams.adam_epsilon)
+    #optimizer = AdamW(model.parameters(), lr=hparams.learning_rate, eps=hparams.adam_epsilon)
     
     t_total = (
         (len(train_dataloader.dataset) // (hparams.train_batch_size * max(1,hparams.n_gpu)))
