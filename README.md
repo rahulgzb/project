@@ -96,9 +96,10 @@ save_plot(args)
 ```
 
 ## Usage Example in kaggle plateform
-
+natebook [text](kaggle_notebook/sample-uses-of-repo.ipynb)
 
 Here's a complete example of how to run the training:
+
 
 ```python
 
@@ -130,7 +131,10 @@ val_dataloader = data_loading(tokenizer, "val", args)
 utils.train_model(args, model, tokenizer, train_dataloader, val_dataloader)
 save_plot(args)
 ```
-
+model matrix :
+## Documentations 
+[text](hack_to_hire_project/Documentation/Summary_report.docx) [text](hack_to_hire_project/Documentation/presentation.pptx)
+![alt text](Documentation/image.png)
 ## Troubleshooting
 
 If you encounter issues, ensure that:
