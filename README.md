@@ -1,7 +1,7 @@
 
 ---
 
-# Question-Answering like human Project
+# hack to hire Project
 
 This repository contains the code and utilities for a state-of-the-art question-answering model using the Quora Question Answer Dataset. The project uses the 'ramsrigouthamg/t5_squad_v1' model and 't5-base' tokenizer, leveraging the Hugging Face transformers library for model inference. The evaluation metrics include ROUGE, BLEU, and F1 scores.
 
