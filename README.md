@@ -8,9 +8,8 @@ Result of the experiments
 => Blue Score on the val_data  65%
 => rouge score on the val_data 20%
 
-## Project Structure
-# Project tree
-# tree
+#### Project Structure
+### tree
 .
  * [__init__.py](./__init__.py)
  * [kaggle_utils.py](./kaggle_utils.py)
@@ -30,11 +29,11 @@ Result of the experiments
    * [sample-uses-of-repo.ipynb](./kaggle_notebook/sample-uses-of-repo.ipynb)
  * [models](./models)
    * [__init__.py](./models/__init__.py)
-   * [t5_model.py](./models/t5_model.py)
+   * [t5_model.py](./models/t5_model.py) model architecture 
    * [utils.py](./models/utils.py)
    * [chat_gpt.py](./models/chat_gpt.py)
  * [Documentation](./Documentation)
-   * [image.png](./Documentation/image.png)
+   * [image.png](./Documentation/image.png) 
    * [presentation.pptx](./Documentation/presentation.pptx)
    * [Summary_report.pdf](./Documentation/Summary_report.pdf)
  * [README.md](./README.md)
