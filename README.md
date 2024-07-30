@@ -4,6 +4,9 @@
 # hack to hire Project
 
 This repository contains the code and utilities for a state-of-the-art question-answering model using the Quora Question Answer Dataset. The project uses the 'ramsrigouthamg/t5_squad_v1' model and 't5-base' tokenizer, leveraging the Hugging Face transformers library for model inference. The evaluation metrics include ROUGE, BLEU, and F1 scores.
+Result of the experiments
+=> Blue Score on the val_data  65%
+=> rouge score on the val_data 20%
 
 ## Project Structure
 
@@ -18,6 +21,10 @@ This repository contains the code and utilities for a state-of-the-art question-
 
 ### `project/generate_plots.py`
 - **`save_plot`**: Generates and saves plots for model performance metrics.
+
+### `project/models/t5_model.py`
+- **`load_model_and_tokenizer`**: load the finetune model for inference.
+- **`infer_single_sentence`**: inference the sentance with model.
 
 ## Getting Started
 
@@ -94,6 +101,14 @@ Save performance plots to visualize the training results:
 ```python
 save_plot(args)
 ```
+### inferance 
+
+inference helper function take sentence takes sentance as input :
+
+```python
+sentence ="what is your name ?"
+infer_single_sentence(model,tokenizer,sentence)
+```
 
 ## Usage Example in kaggle plateform
 natebook [text](kaggle_notebook/sample-uses-of-repo.ipynb)
@@ -134,7 +149,7 @@ save_plot(args)
 model matrix :
 ## Documentations 
 [text](hack_to_hire_project/Documentation/Summary_report.docx) [text](hack_to_hire_project/Documentation/presentation.pptx)
-![alt text](Documentation/image.png)
+
 ## Troubleshooting
 
 If you encounter issues, ensure that:
