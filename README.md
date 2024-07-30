@@ -9,50 +9,27 @@ Result of the experiments
 => rouge score on the val_data 20%
 
 #### Project Structure
-### tree
 .
- * [__init__.py](./__init__.py)
- * [kaggle_utils.py](./kaggle_utils.py)
+ * [kaggle_utils.py](./kaggle_utils.py) utils helpful to run this code in cloud platform
  * [data_preproceesing](./data_preproceesing)
    * [__init__.py](./data_preproceesing/__init__.py)
-   * [preprocess_main.py](./data_preproceesing/preprocess_main.py)
- * [quora_dataset.py](./quora_dataset.py)
- * [requirements.txt](./requirements.txt)
- * [data](./data)
-   * [full_data.csv](./data/full_data.csv)
-   * [text.csv](./data/text.csv)
-   * [val.csv](./data/val.csv)
-   * [train.csv](./data/train.csv)
- * [main_functions.py](./main_functions.py)
- * [genarate_plots.py](./genarate_plots.py)
+   * [preprocess_main.py](./data_preproceesing/preprocess_main.py)  cleaning of the Data main functions
+ * [quora_dataset.py](./quora_dataset.py)  PyTorch dataset loader class 
+ * [requirements.txt](./requirements.txt)  contains the dependency needed to run on cloud platform
+ * [data](./data) includes cleaned train val data 
+ * [main_functions.py](./main_functions.py) contains arguments and function to executes the files 
+ * [genarate_plots.py](./genarate_plots.py)  model performance plot generations 
  * [kaggle_notebook](./kaggle_notebook)
-   * [sample-uses-of-repo.ipynb](./kaggle_notebook/sample-uses-of-repo.ipynb)
+   * [sample-uses-of-repo.ipynb](./kaggle_notebook/sample-uses-of-repo.ipynb) sample notebook to run this repo code on cloud 
  * [models](./models)
-   * [__init__.py](./models/__init__.py)
-   * [t5_model.py](./models/t5_model.py) model architecture 
-   * [utils.py](./models/utils.py)
-   * [chat_gpt.py](./models/chat_gpt.py)
+   * [t5_model.py](./models/t5_model.py) model architecture definition 
+   * [utils.py](./models/utils.py) Contains utility functions for model training and evaluation of matrix 
+   * [chat_gpt.py](./models/chat_gpt.py) 
  * [Documentation](./Documentation)
    * [image.png](./Documentation/image.png) 
-   * [presentation.pptx](./Documentation/presentation.pptx)
-   * [Summary_report.pdf](./Documentation/Summary_report.pdf)
+   * [presentation.pptx](./Documentation/presentation.pptx)  documentation of approach in ppt format
+   * [Summary_report.pdf](./Documentation/Summary_report.pdf)  documentation of approach in pdf 
  * [README.md](./README.md)
-### `project/models`
-- **`t5_model.py`**: Implements and configures the T5 model for question answering.
-    -** '
-    - **`load_model_and_tokenizer`**: load the finetune model for inference.
-    - **`infer_single_sentence`**: inference the sentance with model.
-- **`utils.py`**: Contains utility functions for model training and evaluation.
-
-### `project/main_functions.py`
-- **`set_seed`**: Sets the random seed for reproducibility.
-- **`args_dict`**: Default arguments for various functions.
-- **`data_loading`**: Loads and preprocesses data for training and validation.
-
-### `project/generate_plots.py`
-- **`save_plot`**: Generates and saves plots for model performance metrics.
-
-
 
 ## Getting Started
 
@@ -176,7 +153,7 @@ save_plot(args)
 ```
 model matrix :
 ## Documentations 
-[text](hack_to_hire_project/Documentation/Summary_report.docx) [text](hack_to_hire_project/Documentation/presentation.pptx)
+[text](project/Documentation/Summary_report.docx) [text](project/Documentation/presentation.pptx)
 
 ## Troubleshooting
 
